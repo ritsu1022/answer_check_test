@@ -19,6 +19,30 @@
 static const char qseeds[] = { 'R', 'G', 'B', 'Y', 'M', 'C' };
 static const int num_of_colors = sizeof(qseeds)/sizeof(qseeds[0]);
 
+bool chg_input_chars_is_no_dup(const char* buf) {
+	size_t length = strlen(buf);
+
+	int freq[num_of_colors];
+	memset(freq, 0, sizeof(int) * num_of_colors);
+
+	for (size_t i = 0; i < length; i++) {
+		char* offset = memchr(qseeds, toupper(buf[i]), num_of_colors);
+		if (offset != NULL) {
+			int idx = offset - qseeds;
+			freq[idx]++;
+		}
+	}
+
+	bool ret = true;
+	for (int i = 0; i < num_of_colors; i++) {
+		if (freq[i] >= 2) {
+			printf("同じ文字\"%c\"が%d回使われています\n", qseeds[i], freq[i]);
+			ret = false;
+		}
+	}
+	return ret;
+}
+
 bool chg_input_chars_is_valid(const char* buf) {
 	size_t length = strlen(buf);
 
@@ -65,7 +89,8 @@ int main(void) {
 	}
 	puts(buf);
 	if(chg_input_length_is_valid(buf)
-		&& chg_input_chars_is_valid(buf)) {
+		&& chg_input_chars_is_valid(buf)
+		&& chg_input_chars_is_no_dup(buf)) {
 		puts("入力は妥当です");
 	} else {
 		puts("入力に不正があります");
